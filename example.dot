@@ -1,0 +1,43 @@
+graph ER {
+    graph [ rankdir = "LR" ];
+    layout=neato;
+    overlap=scale;
+    splines=true;
+    pad="0.25,0.25";
+
+	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; cinema;};
+	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; movie;};
+	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; moviesShown;};
+	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; projector;};
+	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; screen;};
+
+
+	{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] moviesShown_ibfk_1}; };
+		moviesShown -- moviesShown_ibfk_1;
+		movie -- moviesShown_ibfk_1;
+			{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] moviesShown_ibfk_2}; };
+		moviesShown -- moviesShown_ibfk_2;
+		screen -- moviesShown_ibfk_2;
+	{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] projector_ibfk_1}; };
+		projector -- projector_ibfk_1;
+		screen -- projector_ibfk_1;
+	{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] screen_ibfk_1}; };
+		screen -- screen_ibfk_1;
+		cinema -- screen_ibfk_1;
+
+
+	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="cinemaId"] "cinema.cinemaId"}; {node[label="cinemaName"] "cinema.cinemaName"}; {node[label="mailingAddress"] "cinema.mailingAddress"}; }; 
+	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="movieId"] "movie.movieId"}; {node[label="title"] "movie.title"}; {node[label="releaseYear"] "movie.releaseYear"}; {node[label="rating"] "movie.rating"}; }; 
+	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="movieId"] "moviesShown.movieId"}; {node[label="screenId"] "moviesShown.screenId"}; }; 
+	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="serialNo"] "projector.serialNo"}; {node[label="screenId"] "projector.screenId"}; {node[label="projectorType"] "projector.projectorType"}; {node[label="modelNumber"] "projector.modelNumber"}; {node[label="resolution"] "projector.resolution"}; {node[label="usedHours"] "projector.usedHours"}; }; 
+	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="screenId"] "screen.screenId"}; {node[label="cinemaId"] "screen.cinemaId"}; {node[label="size"] "screen.size"}; {node[label="capacity"] "screen.capacity"}; {node[label="goldclass"] "screen.goldclass"}; }; 
+
+
+	cinema -- { "cinema.cinemaId"; "cinema.cinemaName"; "cinema.mailingAddress" };
+	movie -- { "movie.movieId"; "movie.title"; "movie.releaseYear"; "movie.rating" };
+	moviesShown -- { "moviesShown.movieId"; "moviesShown.screenId" };
+	projector -- { "projector.serialNo"; "projector.screenId"; "projector.projectorType"; "projector.modelNumber"; "projector.resolution"; "projector.usedHours" };
+	screen -- { "screen.screenId"; "screen.cinemaId"; "screen.size"; "screen.capacity"; "screen.goldclass" };
+
+
+}
