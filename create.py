@@ -76,7 +76,7 @@ class parse:
     other = pp.OneOrMore(pp.CharsNotIn(";")) + ";"
     other.setParseAction(lambda x: "")
 
-    fkey_cols = pp.Word(pp.alphanums + "_`.") + pp.ZeroOrMore(pp.Suppress(",") + pp.Word(pp.alphanums + "._"))
+    fkey_cols = pp.Word(pp.alphanums + "_`.") + pp.ZeroOrMore(pp.Suppress(",") + pp.Word(pp.alphanums + "_`."))
     constraint = (
         pp.CaselessLiteral("CONSTRAINT")
         + pp.Word(pp.alphanums + "_`.").setResultsName("pseudoName")
@@ -158,12 +158,13 @@ def printDot(result):
 
 
 def main(argv):
+    file = None
     databaseName = "mydb"
     sqlPassword = None
 
-    helpText = "main.py --password=<password> --database=<databaseName>"
+    helpText = "main.py --file=<fileName> OR --password=<password> --database=<databaseName>"
     try:
-        opts, args = getopt.getopt(argv, "pd:0", ["password=", "database="])
+        opts, args = getopt.getopt(argv, "pd:0", ["file=", "password=", "database="])
     except getopt.GetoptError:
         print(helpText)
         sys.exit(2)
@@ -172,12 +173,18 @@ def main(argv):
         if opt == "-h":
             print(helpText)
             sys.exit()
+        elif opt in ("-f", "--file"):
+            with open(arg) as f:
+                file = f.read()
         elif opt in ("-d", "--database"):
             databaseName = arg
         elif opt in ("-p", "--password"):
             sqlPassword = arg
 
-    dump = getDump(dbName=databaseName, password=sqlPassword)
+    if file is None:
+        dump = getDump(dbName=databaseName, password=sqlPassword)
+    else:
+        dump = file
     p = parse(dump)
     result = p.process()
     printDot(result)
