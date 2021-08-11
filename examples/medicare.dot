@@ -1,0 +1,43 @@
+graph ER {
+    graph [ rankdir = "LR" ];
+    layout=neato;
+    overlap=scale;
+    splines=true;
+    pad="0.25,0.25";
+
+	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; doctor;};
+	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; emergencyContact;};
+	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; medicareCard;};
+	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; patient;};
+	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; vaccine;};
+	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; vaccineBatch;};
+
+
+	{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] patient_ibfk_1}; };
+		patient -- patient_ibfk_1;
+		medicareCard -- patient_ibfk_1;
+			{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] patient_ibfk_2}; };
+		patient -- patient_ibfk_2;
+		emergencyContact -- patient_ibfk_2;
+	{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] vaccineBatch_ibfk_1}; };
+		vaccineBatch -- vaccineBatch_ibfk_1;
+		vaccine -- vaccineBatch_ibfk_1;
+
+
+	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="MPN"] "doctor.MPN"}; {node[label="title"] "doctor.title"}; {node[label="fName"] "doctor.fName"}; {node[label="lName"] "doctor.lName"}; {node[label="streetNo"] "doctor.streetNo"}; {node[label="streetName"] "doctor.streetName"}; {node[label="postcode"] "doctor.postcode"}; {node[label="email"] "doctor.email"}; {node[label="phoneNo"] "doctor.phoneNo"}; }; 
+	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="emergencyId"] "emergencyContact.emergencyId"}; {node[label="contactName"] "emergencyContact.contactName"}; {node[label="workNo"] "emergencyContact.workNo"}; {node[label="homeNo"] "emergencyContact.homeNo"}; {node[label="mobileNo"] "emergencyContact.mobileNo"}; {node[label="streetNo"] "emergencyContact.streetNo"}; {node[label="streetName"] "emergencyContact.streetName"}; {node[label="postCode"] "emergencyContact.postCode"}; }; 
+	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="medicareNo"] "medicareCard.medicareNo"}; {node[label="email"] "medicareCard.email"}; {node[label="validTo"] "medicareCard.validTo"}; {node[label="phone"] "medicareCard.phone"}; {node[label="streetNo"] "medicareCard.streetNo"}; {node[label="streetName"] "medicareCard.streetName"}; {node[label="postcode"] "medicareCard.postcode"}; }; 
+	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="positionNo"] "patient.positionNo"}; {node[label="medicareNo"] "patient.medicareNo"}; {node[label="fName"] "patient.fName"}; {node[label="lName"] "patient.lName"}; {node[label="gender"] "patient.gender"}; {node[label="birthdate"] "patient.birthdate"}; {node[label="emergencyId"] "patient.emergencyId"}; }; 
+	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="vaccineType"] "vaccine.vaccineType"}; {node[label="vaccineName"] "vaccine.vaccineName"}; }; 
+	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="batchNo"] "vaccineBatch.batchNo"}; {node[label="manufactureDate"] "vaccineBatch.manufactureDate"}; {node[label="expiry"] "vaccineBatch.expiry"}; {node[label="vaccineName"] "vaccineBatch.vaccineName"}; }; 
+
+
+	doctor -- { "doctor.MPN"; "doctor.title"; "doctor.fName"; "doctor.lName"; "doctor.streetNo"; "doctor.streetName"; "doctor.postcode"; "doctor.email"; "doctor.phoneNo" };
+	emergencyContact -- { "emergencyContact.emergencyId"; "emergencyContact.contactName"; "emergencyContact.workNo"; "emergencyContact.homeNo"; "emergencyContact.mobileNo"; "emergencyContact.streetNo"; "emergencyContact.streetName"; "emergencyContact.postCode" };
+	medicareCard -- { "medicareCard.medicareNo"; "medicareCard.email"; "medicareCard.validTo"; "medicareCard.phone"; "medicareCard.streetNo"; "medicareCard.streetName"; "medicareCard.postcode" };
+	patient -- { "patient.positionNo"; "patient.medicareNo"; "patient.fName"; "patient.lName"; "patient.gender"; "patient.birthdate"; "patient.emergencyId" };
+	vaccine -- { "vaccine.vaccineType"; "vaccine.vaccineName" };
+	vaccineBatch -- { "vaccineBatch.batchNo"; "vaccineBatch.manufactureDate"; "vaccineBatch.expiry"; "vaccineBatch.vaccineName" };
+
+
+}
