@@ -1,67 +1,71 @@
-graph ER {
+digraph ER {
     graph [ rankdir = "LR" ];
     layout=neato;
     overlap=scale;
     splines=true;
     pad="0.25,0.25";
 
-	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; allergy;};
-	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; doctor;};
-	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; emergencyContact;};
-	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; jab;};
-	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; medicareCard;};
-	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; patient;};
-	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; reaction;};
-	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; vaccine;};
-	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; vaccineBatch;};
+	{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; allergy; doctor; emergencyContact; jab; medicareCard; patient; reaction; vaccine; vaccineBatch; };
 
 
-	{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] allergy_ibfk_1}; };
-		allergy -- allergy_ibfk_1;
-		patient -- allergy_ibfk_1;
-	{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] jab_ibfk_1}; };
-		jab -- jab_ibfk_1;
-		patient -- jab_ibfk_1;
-			{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] jab_ibfk_2}; };
-		jab -- jab_ibfk_2;
-		vaccineBatch -- jab_ibfk_2;
-			{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] jab_ibfk_3}; };
-		jab -- jab_ibfk_3;
-		doctor -- jab_ibfk_3;
-	{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] patient_ibfk_1}; };
-		patient -- patient_ibfk_1;
-		medicareCard -- patient_ibfk_1;
-			{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] patient_ibfk_2}; };
-		patient -- patient_ibfk_2;
-		emergencyContact -- patient_ibfk_2;
-	{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] reaction_ibfk_1}; };
-		reaction -- reaction_ibfk_1;
-		allergy -- reaction_ibfk_1;
-	{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {node[label="Knows"] vaccineBatch_ibfk_1}; };
-		vaccineBatch -- vaccineBatch_ibfk_1;
-		vaccine -- vaccineBatch_ibfk_1;
+
+	{node [shape=diamond, style=filled, color="chartreuse2", fillcolor="#E4FCCC"];
+		{node[label="Knows"] allergy_ibfk_1}; 
+	};
+	allergy -> allergy_ibfk_1;
+	{edge [arrowhead="none"]; patient -> allergy_ibfk_1; };
+	{node [shape=diamond, style=filled, color="chartreuse2", fillcolor="#E4FCCC"];
+		{node[label="Knows"] jab_ibfk_1}; {node[label="Knows"] jab_ibfk_2}; {node[label="Knows"] jab_ibfk_3}; 
+	};
+	jab -> jab_ibfk_1;
+	{edge [arrowhead="none"]; patient -> jab_ibfk_1; };
+	jab -> jab_ibfk_2;
+	{edge [arrowhead="none"]; vaccineBatch -> jab_ibfk_2; };
+	jab -> jab_ibfk_3;
+	{edge [arrowhead="none"]; doctor -> jab_ibfk_3; };
+	{node [shape=diamond, style=filled, color="chartreuse2", fillcolor="#E4FCCC"];
+		{node[label="Knows"] patient_ibfk_1}; {node[label="Knows"] patient_ibfk_2}; 
+	};
+	patient -> patient_ibfk_1;
+	{edge [arrowhead="none"]; medicareCard -> patient_ibfk_1; };
+	patient -> patient_ibfk_2;
+	{edge [arrowhead="none"]; emergencyContact -> patient_ibfk_2; };
+	{node [shape=diamond, style=filled, color="chartreuse2", fillcolor="#E4FCCC"];
+		{node[label="Knows"] reaction_ibfk_1}; 
+	};
+	reaction -> reaction_ibfk_1;
+	{edge [arrowhead="none"]; allergy -> reaction_ibfk_1; };
+	{node [shape=diamond, style=filled, color="chartreuse2", fillcolor="#E4FCCC"];
+		{node[label="Knows"] vaccineBatch_ibfk_1}; 
+	};
+	vaccineBatch -> vaccineBatch_ibfk_1;
+	{edge [arrowhead="none"]; vaccine -> vaccineBatch_ibfk_1; };
 
 
-	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="allergyName"] "allergy.allergyName"}; {node[label="medication"] "allergy.medication"}; {node[label="dosageTypical"] "allergy.dosageTypical"}; {node[label="medicareNo"] "allergy.medicareNo"}; {node[label="positionNo"] "allergy.positionNo"}; }; 
-	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="MPN"] "doctor.MPN"}; {node[label="title"] "doctor.title"}; {node[label="fName"] "doctor.fName"}; {node[label="lName"] "doctor.lName"}; {node[label="streetNo"] "doctor.streetNo"}; {node[label="streetName"] "doctor.streetName"}; {node[label="postcode"] "doctor.postcode"}; {node[label="email"] "doctor.email"}; {node[label="phoneNo"] "doctor.phoneNo"}; }; 
-	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="emergencyId"] "emergencyContact.emergencyId"}; {node[label="contactName"] "emergencyContact.contactName"}; {node[label="workNo"] "emergencyContact.workNo"}; {node[label="homeNo"] "emergencyContact.homeNo"}; {node[label="mobileNo"] "emergencyContact.mobileNo"}; {node[label="streetNo"] "emergencyContact.streetNo"}; {node[label="streetName"] "emergencyContact.streetName"}; {node[label="postCode"] "emergencyContact.postCode"}; }; 
-	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="medicareNo"] "jab.medicareNo"}; {node[label="positionNo"] "jab.positionNo"}; {node[label="vaccineName"] "jab.vaccineName"}; {node[label="batchNo"] "jab.batchNo"}; {node[label="MPN"] "jab.MPN"}; {node[label="jabDate"] "jab.jabDate"}; }; 
-	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="medicareNo"] "medicareCard.medicareNo"}; {node[label="email"] "medicareCard.email"}; {node[label="validTo"] "medicareCard.validTo"}; {node[label="phone"] "medicareCard.phone"}; {node[label="streetNo"] "medicareCard.streetNo"}; {node[label="streetName"] "medicareCard.streetName"}; {node[label="postcode"] "medicareCard.postcode"}; }; 
-	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="positionNo"] "patient.positionNo"}; {node[label="medicareNo"] "patient.medicareNo"}; {node[label="fName"] "patient.fName"}; {node[label="lName"] "patient.lName"}; {node[label="gender"] "patient.gender"}; {node[label="birthdate"] "patient.birthdate"}; {node[label="emergencyId"] "patient.emergencyId"}; }; 
-	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="reactionId"] "reaction.reactionId"}; {node[label="reactionDate"] "reaction.reactionDate"}; {node[label="gravity"] "reaction.gravity"}; {node[label="dosageGiven"] "reaction.dosageGiven"}; {node[label="medication"] "reaction.medication"}; {node[label="notes"] "reaction.notes"}; {node[label="allergyName"] "reaction.allergyName"}; {node[label="medicareNo"] "reaction.medicareNo"}; {node[label="positionNo"] "reaction.positionNo"}; }; 
-	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="vaccineType"] "vaccine.vaccineType"}; {node[label="vaccineName"] "vaccine.vaccineName"}; }; 
-	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"]; {node[label="batchNo"] "vaccineBatch.batchNo"}; {node[label="manufactureDate"] "vaccineBatch.manufactureDate"}; {node[label="expiry"] "vaccineBatch.expiry"}; {node[label="vaccineName"] "vaccineBatch.vaccineName"}; }; 
+	{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"];
+		{node[label=<<u>allergyName</u>>] "allergy.allergyName"}; {node[label=medication] "allergy.medication"}; {node[label=dosageTypical] "allergy.dosageTypical"}; {node[label=<<u>medicareNo</u>>] "allergy.medicareNo"}; {node[label=<<u>positionNo</u>>] "allergy.positionNo"};
+		{node[label=<<u>MPN</u>>] "doctor.MPN"}; {node[label=title] "doctor.title"}; {node[label=fName] "doctor.fName"}; {node[label=lName] "doctor.lName"}; {node[label=streetNo] "doctor.streetNo"}; {node[label=streetName] "doctor.streetName"}; {node[label=postcode] "doctor.postcode"}; {node[label=email] "doctor.email"}; {node[label=phoneNo] "doctor.phoneNo"};
+		{node[label=<<u>emergencyId</u>>] "emergencyContact.emergencyId"}; {node[label=AUTO_INCREMENT] "emergencyContact.AUTO_INCREMENT"}; {node[label=contactName] "emergencyContact.contactName"}; {node[label=workNo] "emergencyContact.workNo"}; {node[label=homeNo] "emergencyContact.homeNo"}; {node[label=mobileNo] "emergencyContact.mobileNo"}; {node[label=streetNo] "emergencyContact.streetNo"}; {node[label=streetName] "emergencyContact.streetName"}; {node[label=postCode] "emergencyContact.postCode"};
+		{node[label=<<u>medicareNo</u>>] "jab.medicareNo"}; {node[label=<<u>positionNo</u>>] "jab.positionNo"}; {node[label=<<u>vaccineName</u>>] "jab.vaccineName"}; {node[label=<<u>batchNo</u>>] "jab.batchNo"}; {node[label=<<u>MPN</u>>] "jab.MPN"}; {node[label=jabDate] "jab.jabDate"};
+		{node[label=<<u>medicareNo</u>>] "medicareCard.medicareNo"}; {node[label=email] "medicareCard.email"}; {node[label=validTo] "medicareCard.validTo"}; {node[label=phone] "medicareCard.phone"}; {node[label=streetNo] "medicareCard.streetNo"}; {node[label=streetName] "medicareCard.streetName"}; {node[label=postcode] "medicareCard.postcode"};
+		{node[label=<<u>positionNo</u>>] "patient.positionNo"}; {node[label=<<u>medicareNo</u>>] "patient.medicareNo"}; {node[label=fName] "patient.fName"}; {node[label=lName] "patient.lName"}; {node[label=gender] "patient.gender"}; {node[label=birthdate] "patient.birthdate"}; {node[label=emergencyId] "patient.emergencyId"};
+		{node[label=<<u>reactionId</u>>] "reaction.reactionId"}; {node[label=AUTO_INCREMENT] "reaction.AUTO_INCREMENT"}; {node[label=reactionDate] "reaction.reactionDate"}; {node[label=gravity] "reaction.gravity"}; {node[label=dosageGiven] "reaction.dosageGiven"}; {node[label=medication] "reaction.medication"}; {node[label=notes] "reaction.notes"}; {node[label=text] "reaction.text"}; {node[label=allergyName] "reaction.allergyName"}; {node[label=medicareNo] "reaction.medicareNo"}; {node[label=positionNo] "reaction.positionNo"};
+		{node[label=vaccineType] "vaccine.vaccineType"}; {node[label=<<u>vaccineName</u>>] "vaccine.vaccineName"};
+		{node[label=<<u>batchNo</u>>] "vaccineBatch.batchNo"}; {node[label=manufactureDate] "vaccineBatch.manufactureDate"}; {node[label=expiry] "vaccineBatch.expiry"}; {node[label=<<u>vaccineName</u>>] "vaccineBatch.vaccineName"};
+		};
 
 
-	allergy -- { "allergy.allergyName"; "allergy.medication"; "allergy.dosageTypical"; "allergy.medicareNo"; "allergy.positionNo" };
-	doctor -- { "doctor.MPN"; "doctor.title"; "doctor.fName"; "doctor.lName"; "doctor.streetNo"; "doctor.streetName"; "doctor.postcode"; "doctor.email"; "doctor.phoneNo" };
-	emergencyContact -- { "emergencyContact.emergencyId"; "emergencyContact.contactName"; "emergencyContact.workNo"; "emergencyContact.homeNo"; "emergencyContact.mobileNo"; "emergencyContact.streetNo"; "emergencyContact.streetName"; "emergencyContact.postCode" };
-	jab -- { "jab.medicareNo"; "jab.positionNo"; "jab.vaccineName"; "jab.batchNo"; "jab.MPN"; "jab.jabDate" };
-	medicareCard -- { "medicareCard.medicareNo"; "medicareCard.email"; "medicareCard.validTo"; "medicareCard.phone"; "medicareCard.streetNo"; "medicareCard.streetName"; "medicareCard.postcode" };
-	patient -- { "patient.positionNo"; "patient.medicareNo"; "patient.fName"; "patient.lName"; "patient.gender"; "patient.birthdate"; "patient.emergencyId" };
-	reaction -- { "reaction.reactionId"; "reaction.reactionDate"; "reaction.gravity"; "reaction.dosageGiven"; "reaction.medication"; "reaction.notes"; "reaction.allergyName"; "reaction.medicareNo"; "reaction.positionNo" };
-	vaccine -- { "vaccine.vaccineType"; "vaccine.vaccineName" };
-	vaccineBatch -- { "vaccineBatch.batchNo"; "vaccineBatch.manufactureDate"; "vaccineBatch.expiry"; "vaccineBatch.vaccineName" };
+	edge [arrowhead="none"]
+	allergy -> { "allergy.allergyName"; "allergy.medication"; "allergy.dosageTypical"; "allergy.medicareNo"; "allergy.positionNo" };
+	doctor -> { "doctor.MPN"; "doctor.title"; "doctor.fName"; "doctor.lName"; "doctor.streetNo"; "doctor.streetName"; "doctor.postcode"; "doctor.email"; "doctor.phoneNo" };
+	emergencyContact -> { "emergencyContact.emergencyId"; "emergencyContact.AUTO_INCREMENT"; "emergencyContact.contactName"; "emergencyContact.workNo"; "emergencyContact.homeNo"; "emergencyContact.mobileNo"; "emergencyContact.streetNo"; "emergencyContact.streetName"; "emergencyContact.postCode" };
+	jab -> { "jab.medicareNo"; "jab.positionNo"; "jab.vaccineName"; "jab.batchNo"; "jab.MPN"; "jab.jabDate" };
+	medicareCard -> { "medicareCard.medicareNo"; "medicareCard.email"; "medicareCard.validTo"; "medicareCard.phone"; "medicareCard.streetNo"; "medicareCard.streetName"; "medicareCard.postcode" };
+	patient -> { "patient.positionNo"; "patient.medicareNo"; "patient.fName"; "patient.lName"; "patient.gender"; "patient.birthdate"; "patient.emergencyId" };
+	reaction -> { "reaction.reactionId"; "reaction.AUTO_INCREMENT"; "reaction.reactionDate"; "reaction.gravity"; "reaction.dosageGiven"; "reaction.medication"; "reaction.notes"; "reaction.text"; "reaction.allergyName"; "reaction.medicareNo"; "reaction.positionNo" };
+	vaccine -> { "vaccine.vaccineType"; "vaccine.vaccineName" };
+	vaccineBatch -> { "vaccineBatch.batchNo"; "vaccineBatch.manufactureDate"; "vaccineBatch.expiry"; "vaccineBatch.vaccineName" };
+
 
 
 }

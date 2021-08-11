@@ -2,6 +2,7 @@ from subprocess import Popen, PIPE
 import getopt
 import sys
 import pyparsing as pp
+import collections
 
 
 def getDump(dbName="mydb", password=None):
@@ -9,6 +10,10 @@ def getDump(dbName="mydb", password=None):
         ["mysqldump", dbName, "--compact", "--no-data", f"--password={password}"], stdout=PIPE, stdin=PIPE, stderr=PIPE
     )
     return dump.communicate()[0].decode()
+
+
+def actPrimaryKey(s, loc, tok):
+    return [word.replace("`", "") for word in tok["param"][1:-1].split(",")]
 
 
 def actField(s, loc, tok):
@@ -24,35 +29,82 @@ def actTable(s, loc, tok):
     tableName = tok["tableName"].replace("`", "")
 
     ## Fields
-    fieldList = ['\t{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"];']
+    fieldList = []
     fieldNamesList = []
     for tokField in tok["fields"]:
         field = tokField.replace("`", "")
         if field != "":
             fieldName = f'"{tableName}.{field}"'
-            fieldList.append(f'{{node[label="{field}"] {fieldName}}};')
+            if "PK" in tok and field in list(tok["PK"]):
+                label = f"<<u>{field}</u>>"
+            else:
+                label = field
+            fieldList.append(f"{{node[label={label}] {fieldName}}};")
             fieldNamesList.append(fieldName)
-    fieldList.append("}; ")
     fieldStr = " ".join(fieldList)
     fieldNameStr = "; ".join(fieldNamesList)
 
     ## Constraints
     if "constraints" in tok:
-        constraintList = []
+        constraintList = [""]
+        nodeList = ['\n\t{node [shape=diamond, style=filled, color="chartreuse2", fillcolor="#E4FCCC"];\n\t\t']
         for constraint in tok["constraints"]:
             constraintName = constraint[0].replace("`", "")
             otherTableName = constraint[1].replace("`", "")
-            constraintNode = f'\t{{node [shape=diamond,style=filled,color="chartreuse2", fillcolor="#E4FCCC"]; {{node[label="Knows"] {constraintName}}}; }};'
-            rel = f"{tableName} -- {constraintName};"
-            rel2 = f"{otherTableName} -- {constraintName};"
-            constraintList.append(constraintNode + "\n\t\t" + rel + "\n\t\t" + rel2)
-        constraint = "\n\t\t".join(constraintList)
+            constraintNode = f'{{node[label="Knows"] {constraintName}}}; '
+            rel = f"{tableName} -> {constraintName};"
+            rel2 = f'{{edge [arrowhead="none"]; {otherTableName} -> {constraintName}; }};'
+            nodeList.append(constraintNode)
+            constraintList.append(rel)
+            constraintList.append(rel2)
+        nodeList.append("\n\t};")
+        constraint = "".join(nodeList) + "\n\t".join(constraintList)
     else:
         constraint = ""
 
-    tbl = f'\t{{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; {tableName};}};'
-    fieldRel = f"\t{tableName} -- {{ {fieldNameStr} }};"
+    # tbl = f'\t{{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]; {tableName};}};'
+    tbl = tableName
+    fieldRel = f"\t{tableName} -> {{ {fieldNameStr} }};\n"
     return {"tbl": tbl, "field": fieldStr, "rel": fieldRel, "con": constraint}
+
+
+def orgTbl(tbl: list[str]):
+    out = collections.deque()
+    for item in tbl:
+        out.append(item)
+    out.appendleft(
+        '\t{node [shape=box, fontsize=24, height=1, width=1.5, style=filled, color="orange", fillcolor="#FFE6CC"]'
+    )
+    out.append("};")
+
+    return "; ".join(out)
+
+
+def orgField(field: list[str]):
+    out = collections.deque()
+    for item in field:
+        out.append(item)
+    out.appendleft('\t{node [shape=ellipse, style=filled, color="mediumpurple1", fillcolor="#EFE6FF"];')
+    out.append("};")
+
+    return "\n\t\t".join(out)
+
+
+def orgRel(rel: list[str]):
+    out = collections.deque()
+    for item in rel:
+        out.append(item)
+    out.appendleft('\tedge [arrowhead="none"]\n')
+
+    return "".join(out)
+
+
+def orgCon(con: list[str]):
+    out = collections.deque()
+    for item in con:
+        out.append(item)
+
+    return "".join(out)
 
 
 def actCriteria(s, loc, tok):
@@ -64,9 +116,18 @@ def actCriteria(s, loc, tok):
 
     strList = []
     for key in ["tbl", "con", "field", "rel"]:
-        for item in listDict[key]:
-            strList.append(item)
+        if key == "tbl":
+            out = orgTbl(listDict[key])
+        elif key == "field":
+            out = orgField(listDict[key])
+        elif key == "rel":
+            out = orgRel(listDict[key])
+        elif key == "con":
+            out = orgCon(listDict[key])
+
+        strList.append(out)
         strList.append("\n")
+
     return strList
 
 
@@ -94,13 +155,11 @@ class parse:
     constraint.setParseAction(actConstraint)
     constraintList = constraint + pp.ZeroOrMore(pp.Suppress(",") + constraint)
 
-    invalidLiteral = pp.OneOrMore(pp.CaselessLiteral("PRIMARY") | pp.CaselessLiteral("KEY")) + pp.ZeroOrMore(
-        pp.CharsNotIn("\n")
-    )
-    invalidLiteral.setParseAction(lambda x: "")
+    # invalidLiteral = pp.OneOrMore(pp.Keyword("KEY")) + pp.ZeroOrMore(pp.CharsNotIn("\n"))
+    # invalidLiteral.setParseAction(lambda x: "")
 
     parenthesis = pp.Forward()
-    parenthesis <<= "(" + pp.ZeroOrMore(pp.CharsNotIn("()") | parenthesis) + ")"
+    parenthesis <<= "(" + pp.ZeroOrMore(pp.CharsNotIn("()") | parenthesis).setResultsName("paramContains") + ")"
     parenthesis.setParseAction(lambda x, y, z: "".join(z).replace("\n", "\\n"))
 
     qouted_string = "'" + pp.OneOrMore(pp.CharsNotIn("'")) + "'"
@@ -109,14 +168,25 @@ class parse:
     qouted_default_value = pp.CaselessLiteral("DEFAULT") + qouted_string + pp.OneOrMore(pp.CharsNotIn(", \n\t"))
     qouted_default_value.setParseAction(lambda x, y, z: z[0] + " " + "".join(z[1::]))
 
-    field = ~constraint + pp.OneOrMore(
-        invalidLiteral
-        | qouted_default_value
-        | ~pp.CaselessLiteral("CONSTRAINT") + pp.Word(pp.alphanums + "_\"'`:-/[].")
-        | parenthesis
-    )
+    keys = list(map(pp.CaselessKeyword, "NOT NULL COLLATE DEFAULT utf8mb4_unicode_ci".split()))
+    types = list(map(pp.CaselessKeyword, "VARCHAR INT ENUM DATE".split()))
+    field = (
+        ~pp.CaselessKeyword("PRIMARY")
+        + pp.Word(pp.alphanums + "`._@$")
+        + pp.ZeroOrMore(pp.Or(keys) | pp.Or(types) | parenthesis)
+        + pp.Optional(pp.Char(","))
+    ).setResultsName("fieldtre")
+
     field.setParseAction(actField)
-    fieldList = field + pp.ZeroOrMore(pp.Suppress(",") + field)
+
+    key = pp.CaselessKeyword("KEY") + pp.Word(pp.alphanums + "`._") + parenthesis + pp.Optional(",")
+    primaryKey = (
+        pp.CaselessKeyword("PRIMARY")
+        + pp.CaselessKeyword("KEY")
+        + parenthesis.setResultsName("param")
+        + pp.Optional(",")
+    )
+    primaryKey.setParseAction(actPrimaryKey)
 
     tableName = pp.Word(pp.alphanums + "`_.") | pp.QuotedString('"')
     table = (
@@ -124,7 +194,10 @@ class parse:
         + pp.CaselessLiteral("TABLE")
         + tableName.setResultsName("tableName")
         + "("
-        + fieldList.setResultsName("fields")
+        + pp.ZeroOrMore(field).setResultsName("fields")
+        + pp.ZeroOrMore(qouted_default_value | parenthesis)
+        + pp.ZeroOrMore(primaryKey).setResultsName("PK")
+        + pp.ZeroOrMore(key)
         + pp.Optional(constraintList.setResultsName("constraints"))
         + ")"
         + pp.ZeroOrMore(pp.CharsNotIn(";\n"))
@@ -143,7 +216,7 @@ class parse:
 
 def printDot(result):
     print(
-        """graph ER {
+        """digraph ER {
     graph [ rankdir = "LR" ];
     layout=neato;
     overlap=scale;
